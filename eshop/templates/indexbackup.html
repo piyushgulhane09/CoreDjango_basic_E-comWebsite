@@ -1,0 +1,105 @@
+{% extends 'basic.html' %}
+{% block title %} 
+  Home
+{% endblock title %}
+
+
+{% block body %}
+
+{% load cartfilter %}
+
+  <div class="container-fluid">
+
+    <div class="row">
+
+      {% comment %} Category List {% endcomment %}
+      <div class = "col-lg-3 mx-auto my-3">
+        <div class="row">
+          <div class = "col-12">
+            <ul class="list-group list-group-flussh">
+              <li class="list-group-item active">Category</li>
+              <a href="{% url 'index' %}"><li class="list-group-item">All Products</li></a>
+                {% for category_name in Allcategory_name %}
+              <a href="{% url 'category' category_id=category_name.id %}"><li class="list-group-item">{{category_name.name}}</li></a>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+     
+     
+    {% comment %} Condition Starts here {% endcomment %}
+
+      {% comment %} Category Products {% endcomment %}
+      {% if category_products %}
+      <div class = "col-lg-9 mx-auto">
+        <div class = "row">
+          {% for category_product in category_products %}
+          <div class = "col-3  my-auto">
+            <div class="card my-3" style="width: auto;">
+              <img class="card-img-top" src="{{category_product.image.url}}" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title">{{category_product.name}}</h5>
+                <p class="card-text">{{category_product.description|slice:"0:20"}}...</p>
+
+              </div>
+              
+              <div class="card-footer">
+                {{category_product.id|is_in_cart:request.session.cart}}  
+
+                <form action="/" method="POST"> {% csrf_token %}
+                  <input  class="text" value = "{{category_product.id}}"  name="product_ID">
+                  <button type="submit" name="" value="" id="" class="btn btn-light border btn-sm">Add to cart</button>
+                </form>
+              </div>
+
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      {% else %}
+      {% comment %} All Products {% endcomment %}
+      <div class = "col-lg-9 mx-auto">
+        <div class = "row">
+          {% for product in All_products %}
+          <div class = "col-3  my-auto">
+            <div class="card my-3" style="width: auto;">
+              <img class="card-img-top" src="{{product.image.url}}" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title">{{product.name}}</h5>
+                <p class="card-text">{{product.description|slice:"0:20"}}...</p>
+              
+              </div>
+              
+              <div class="card-footer">
+                {% if product.id|is_in_cart:request.session.cart %}
+                <div class="row">
+                  <input value="-" name="minus" class="btn btn-secondary col-2">
+                  {% comment %} <div class="col-8 text-center"> Quantity </div> {% endcomment %}
+                  <input  class="text col-8" value = "{{product.id}}" name="product_ID">
+                  <input value="+" name="plus" class="btn btn-secondary col-2">
+                </div> 
+                {% else %}
+                <form action="/" method="POST"> {% csrf_token %}
+                  <input  class="text" value = "{{product.id}}" hidden name="product_ID">
+                  <button type="submit" name="" value="" id="" class="btn btn-secondary border form-control">Add to cart</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {% comment %} Condition ends here {% endcomment %}
+
+
+    </div>
+
+  </div>
+
+ 
+{% endblock body %}
